@@ -3,952 +3,771 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinematic Video Prompt Generator</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script> 
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script> 
-    <script src="https://cdn.tailwindcss.com"></script> 
+    <title>Generator Prompt Video Sinematik</title>
     <style>
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #F8F9FA;
+            --accent-color: #E91E63;
+            --dark-bg: #1a1a1a;
+            --dark-card: #2d2d2d;
+            --dark-text: #f5f5f5;
         }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #ffffff 100%);
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #121212 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode .card {
+            background: var(--dark-card);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        body.dark-mode label {
+            color: var(--dark-text);
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode select,
+        body.dark-mode input[type="text"],
+        body.dark-mode textarea {
+            background: #444;
+            color: var(--dark-text);
+            border: 1px solid #666;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #5a52d6;
+        }
+
+        .prompt-results {
+            margin-top: 30px;
+        }
+
+        .prompt-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 15px;
+            position: relative;
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .prompt-box:hover {
+            transform: translateX(5px);
+        }
+
+        .prompt-type {
+            background: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            font-size: 14px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .section {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: 500px;
+        }
+
+        .section.collapsed {
+            max-height: 0;
+        }
+
+        .section-header {
+            background: #eee;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .dark-mode .section-header {
+            background: #444;
+        }
+
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .section.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-color);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #f0f0f0;
+        }
+
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .history-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .history-item {
+            background: #333;
+        }
+
+        .history-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState, useCallback } = React;
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1>Generator Prompt Video Sinematik</h1>
+            <button onclick="toggleDarkMode()" style="position: absolute; top: 20px; right: 20px;">
+                🌙/☀️
+            </button>
+        </div>
 
-        // --- Icon Components ---
-        const FilmIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>;
-        const UsersIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-        const MapPinIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
-        const CameraIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
-        const MusicIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>;
-        const SparklesIcon = () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3L9.5 8.5 4 11l5.5 2.5L12 19l2.5-5.5L20 11l-5.5-2.5z"/><path d="M5 3L3 8l5 2L3 12l2 5"/><path d="M19 3l2 5-5 2 5 2-2 5"/></svg>;
-        const SlidersIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>;
-        const PlusCircleIcon = () => <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>;
-        const CopyIcon = () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
-        const ClipboardListIcon = () => <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>;
-        
-        // --- UI Components ---
-        const MessageBox = ({ message, type, onClose }) => {
-            if (!message) return null;
-            const typeStyles = { 
-                error: 'bg-red-100 border-red-500 text-red-700', 
-                success: 'bg-green-100 border-green-500 text-green-700', 
-                info: 'bg-blue-100 border-blue-500 text-blue-700' 
-            };
-            return ( 
-                <div className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-2xl ${typeStyles[type] || typeStyles['info']} border-l-4 z-50 animate-fade-in`}>
-                    <div className="flex justify-between items-center">
-                        <span className="font-medium">{message}</span>
-                        <button onClick={onClose} className="ml-4 text-xl font-bold leading-none hover:text-black">&times;</button>
-                    </div>
-                </div>
-            );
-        };
-
-        const Input = (props) => <input {...props} className="p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 w-full bg-slate-50"/>;
-        const Select = (props) => <select {...props} className="p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 w-full bg-slate-50"/>;
-        const Textarea = (props) => <textarea {...props} className="p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 w-full bg-slate-50"/>;
-        const FormSection = ({ title, icon, children }) => (
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">{icon}{title}</h2>
-                <div className="space-y-4">{children}</div>
+        <!-- Karakter -->
+        <div class="card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Manajemen Karakter</h2>
+                <span class="arrow">▶</span>
             </div>
-        );
+            <div class="section">
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Nama Karakter</label>
+                        <input type="text" id="characterName" placeholder="Jendral Kaelan">
+                    </div>
+                    <div class="form-group">
+                        <label>Penampilan Fisik</label>
+                        <textarea rows="3" id="physicalAppearance" placeholder="Contoh: Pria 30 tahun, rambut hitam ikal..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Gaya Pakaian Khas</label>
+                        <textarea rows="3" id="clothingStyle" placeholder="Contoh: Selalu memakai kemeja flanel..."></textarea>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="addCharacter()">
+                    Tambah Karakter
+                </button>
+            </div>
+        </div>
 
-        function App() {
-            // State Management
-            const [definedCharacters, setDefinedCharacters] = useState([]);
-            const [sceneSubjects, setSceneSubjects] = useState([]);
-            const [mainDescription, setMainDescription] = useState('');
-            const [setting, setSetting] = useState('');
-            const [visualMood, setVisualMood] = useState('');
-            const [cameraMovement, setCameraMovement] = useState('');
-            const [cameraAngle, setCameraAngle] = useState('');
-            const [lighting, setLighting] = useState('');
-            const [cinematicStyle, setCinematicStyle] = useState('');
-            const [backgroundMusic, setBackgroundMusic] = useState('');
-            const [sfx, setSfx] = useState('');
-            const [dialogueEntries, setDialogueEntries] = useState([]);
-            const [aspectRatio, setAspectRatio] = useState('16:9');
-            const [videoQuality, setVideoQuality] = useState('');
-            const [loading, setLoading] = useState({ main: false, character: null, storyboard: null });
-            const [message, setMessage] = useState('');
-            const [messageType, setMessageType] = useState('info');
-            const [englishPrompt, setEnglishPrompt] = useState('');
-            const [indonesianPrompt, setIndonesianPrompt] = useState('');
-            const [optimizedPrompt, setOptimizedPrompt] = useState('');
-            const [storyboard, setStoryboard] = useState([]);
+        <!-- Adegan -->
+        <div class="card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Penyusunan Adegan</h2>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="section">
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Deskripsi Inti Adegan</label>
+                        <textarea rows="3" id="sceneDescription" placeholder="Contoh: Sebuah pertemuan rahasia di malam hari..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Lokasi & Atmosfer</label>
+                        <input type="text" id="locationAtmosphere" placeholder="Contoh: gang sempit di kota hujan...">
+                    </div>
+                    <div class="form-group">
+                        <label>Pilih Mood</label>
+                        <select id="moodSelector">
+                            <option disabled selected>Pilih Mood</option>
+                            <option>Eerie (Mencekam)</option>
+                            <option>Nostalgic (Nostalgia)</option>
+                            <option>Tense (Tegang)</option>
+                            <option>Peaceful (Damai)</option>
+                            <option>Hopeful (Penuh Harapan)</option>
+                            <option>Melancholic (Melankolis)</option>
+                            <option>Gritty (Kasar)</option>
+                            <option>Surreal (Tidak Nyata)</option>
+                            <option>Dreamlike (Seperti Mimpi)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Options Data
-            const cameraMovementOptions = [
-                {value: 'Orbit / Rotate 360°', label: 'Orbit / Rotate 360°'},
-                {value: 'Slow Push-in', label: 'Slow Push-in (Mendekat)'},
-                {value: 'Pull-out Reveal', label: 'Pull-out Reveal (Menjauh)'}
-            ];
-            const cameraAngleOptions = [
-                {value: 'Close-up shot', label: 'Close-up'},
-                {value: 'Extreme close-up / Macro shot', label: 'Extreme Close-up / Macro'},
-                {value: 'Low angle shot', label: 'Low angle (Dari Bawah)'}
-            ];
-            const lightingOptions = [
-                {value: 'dramatic side lighting', label: 'Dramatic Side Lighting'},
-                {value: 'moody shadows', label: 'Moody Shadows'},
-                {value: 'golden hour style', label: 'Golden Hour'}
-            ];
-            const cinematicStyleOptions = [
-                {value: 'hyperreal CGI', label: 'Hyperreal CGI'},
-                {value: '35mm film look', label: '35mm Film Look'},
-                {value: 'cinematic LUT', label: 'Cinematic LUT'}
-            ];
-            const visualMoodOptions = [
-                {value: 'eerie', label: 'Eerie (Mencekam)'},
-                {value: 'nostalgic', label: 'Nostalgic (Nostalgia)'},
-                {value: 'tense', label: 'Tense (Tegang)'}
-            ];
-            const videoQualityOptions = ['4K', 'HD', 'Cinematic Quality'];
-            const aspectRatioOptions = [
-                { value: "16:9", label: "16:9 (Layar Lebar)" },
-                { value: "9:16", label: "9:16 (Vertikal)" },
-                { value: "1:1", label: "1:1 (Persegi)" }
-            ];
+        <!-- Suara & Dialog -->
+        <div class="card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Desain Suara & Dialog</h2>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="section">
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Musik Latar</label>
+                        <input type="text" id="backgroundMusic" placeholder="Contoh: alunan piano melankolis...">
+                    </div>
+                    <div class="form-group">
+                        <label>Efek Suara (SFX)</label>
+                        <input type="text" id="soundEffects" placeholder="Contoh: suara hujan, gema langkah...">
+                    </div>
+                    <div class="form-group">
+                        <label>Baris Dialog</label>
+                        <textarea rows="3" id="dialogueLine" placeholder="Contoh: 'Kita tidak punya banyak waktu.'"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Nada Bicara</label>
+                        <input type="text" id="toneOfVoice" placeholder="Contoh: Berbisik, gembira, sarkasme...">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Utility Functions
-            const showMessage = useCallback((msg, type = 'info') => {
-                setMessage(msg);
-                setMessageType(type);
-                setTimeout(() => setMessage(''), 5000);
-            }, []);
-
-            const copyToClipboard = (text, lang) => {
-                if(!text) return;
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                    showMessage(`${lang} prompt berhasil disalin!`, 'success');
-                } catch (err) {
-                    showMessage(`Gagal menyalin ${lang} prompt.`, 'error');
-                }
-                document.body.removeChild(textarea);
-            };
-
-            // Character Management
-            const addDefinedCharacter = () => {
-                setDefinedCharacters(chars => [
-                    ...chars, 
-                    { 
-                        id: Date.now(), 
-                        name: `Karakter #${chars.length + 1}`, 
-                        appearance: '', 
-                        clothing: '', 
-                        ideaConcept: '' 
-                    }
-                ]);
-            };
-
-            const removeDefinedCharacter = (id) => {
-                setDefinedCharacters(chars => chars.filter(char => char.id !== id));
-            };
-
-            const handleDefinedCharacterChange = (id, field, value) => {
-                setDefinedCharacters(chars => 
-                    chars.map(char => 
-                        char.id === id ? { ...char, [field]: value } : char
-                    )
-                );
-            };
-
-            // Scene Subject Management
-            const addSceneSubject = () => {
-                setSceneSubjects(subs => [
-                    ...subs, 
-                    { 
-                        id: Date.now(), 
-                        characterId: null, 
-                        action: '' 
-                    }
-                ]);
-            };
-
-            const removeSceneSubject = (id) => {
-                setSceneSubjects(subs => subs.filter(sub => sub.id !== id));
-            };
-
-            const handleSceneSubjectChange = (id, field, value) => {
-                setSceneSubjects(subs => 
-                    subs.map(sub => 
-                        sub.id === id ? { ...sub, [field]: value } : sub
-                    )
-                );
-            };
-
-            // Dialogue Management
-            const addDialogueEntry = () => {
-                setDialogueEntries(entries => [
-                    ...entries, 
-                    { 
-                        id: Date.now(), 
-                        characterId: null, 
-                        text: '', 
-                        tone: '' 
-                    }
-                ]);
-            };
-
-            const removeDialogueEntry = (id) => {
-                setDialogueEntries(entries => 
-                    entries.filter(entry => entry.id !== id)
-                );
-            };
-
-            const handleDialogueEntryChange = (id, field, value) => {
-                setDialogueEntries(entries => 
-                    entries.map(entry => 
-                        entry.id === id ? { ...entry, [field]: value } : entry
-                    )
-                );
-            };
-
-            // Prompt Generation Logic
-            const buildBasePrompt = () => {
-                const characterDefinitions = definedCharacters.map(c => 
-                    `Karakter: ${c.name} - ${c.appearance}, berpakaian ${c.clothing}.`
-                ).join(' ');
-
-                const sceneActions = sceneSubjects
-                    .map(s => {
-                        const char = definedCharacters.find(c => c.id == s.characterId);
-                        return char ? `${char.name}: ${s.action}` : '';
-                    })
-                    .filter(Boolean)
-                    .join('; ');
-
-                const dialogueLines = dialogueEntries
-                    .map(entry => {
-                        const char = definedCharacters.find(c => c.id == entry.characterId);
-                        if (!char || !entry.text.trim()) return null;
-                        return `${char.name} berkata, "${entry.text}" (dengan nada ${entry.tone || 'netral'})`;
-                    })
-                    .filter(Boolean)
-                    .join('; ');
-
-                return {
-                    characterDefinitions,
-                    sceneActions,
-                    dialogueLines
-                };
-            };
-
-            const generatePrompt = () => {
-                if (!mainDescription) {
-                    showMessage("Deskripsi Adegan Utama tidak boleh kosong.", "error");
-                    return;
-                }
-
-                setLoading(prev => ({ ...prev, main: true }));
-                setEnglishPrompt('');
-                setIndonesianPrompt('');
-                setOptimizedPrompt('');
-                setStoryboard([]);
-
-                try {
-                    const base = buildBasePrompt();
-                    
-                    // Generate Indonesian Prompt
-                    const idPrompt = `Deskripsi Adegan: ${mainDescription}
-Lokasi: ${setting || 'Tidak ditentukan'}
-Mood Visual: ${visualMood || 'Netral'}
-Karakter:
-${base.characterDefinitions}
-Aksi: ${base.sceneActions}
-Dialog: ${base.dialogueLines}
-Teknik Sinematografi:
-- Pergerakan Kamera: ${cameraMovement || 'Tidak ditentukan'}
-- Sudut Kamera: ${cameraAngle || 'Tidak ditentukan'}
-- Pencahayaan: ${lighting || 'Tidak ditentukan'}
-- Gaya Visual: ${cinematicStyle || 'Tidak ditentukan'}
-Spesifikasi Teknis:
-- Rasio Aspek: ${aspectRatio || '16:9'}
-- Kualitas Video: ${videoQuality || 'HD'}`;
-
-                    // Generate English Prompt
-                    const enPrompt = `Scene Description: ${mainDescription}
-Setting: ${setting || 'Unspecified'}
-Visual Mood: ${visualMood || 'Neutral'}
-Characters:
-${base.characterDefinitions.replace(/Karakter:/g, '-')}
-Actions: ${base.sceneActions || 'No specific actions'}
-Dialogue: ${base.dialogueLines || 'No dialogue'}
-Cinematography:
-- Camera Movement: ${cameraMovement || 'Unspecified'}
-- Camera Angle: ${cameraAngle || 'Unspecified'}
-- Lighting: ${lighting || 'Unspecified'}
-- Visual Style: ${cinematicStyle || 'Unspecified'}
-Technical Specs:
-- Aspect Ratio: ${aspectRatio || '16:9'}
-- Video Quality: ${videoQuality || 'HD'}`;
-
-                    // Generate Optimized Prompt
-                    const optPrompt = `Adegan sinematik yang memukau dalam format ${aspectRatio || '16:9'}, 
-menggambarkan "${mainDescription}". Lokasi: ${setting || 'tempat misterius'} 
-dengan suasana visual ${visualMood || 'netral'}. ${base.characterDefinitions} 
-${base.sceneActions ? `Aksi dinamis: ${base.sceneActions}` : ''} 
-${base.dialogueLines ? `Dialog penting: ${base.dialogueLines}` : ''} 
-Pergerakan kamera menggunakan teknik ${cameraMovement || 'statis'}, 
-sudut pengambilan gambar ${cameraAngle || 'standar'}, dengan pencahayaan 
-${lighting || 'alami'} dan gaya visual ${cinematicStyle || 'klasik'}. 
-Kualitas produksi ${videoQuality || 'HD'} dengan perhatian detail pada 
-komposisi frame dan nuansa warna.`;
-
-                    setIndonesianPrompt(idPrompt);
-                    setEnglishPrompt(enPrompt);
-                    setOptimizedPrompt(optPrompt);
-                } catch (error) {
-                    showMessage(error.message || 'Terjadi kesalahan.', 'error');
-                } finally {
-                    setLoading(prev => ({ ...prev, main: false }));
-                }
-            };
-
-            // Mock Character Generation
-            const handleGenerateCharacter = (charId) => {
-                const character = definedCharacters.find(c => c.id === charId);
-                if (!character || !character.ideaConcept) {
-                    showMessage("Masukkan konsep ide untuk karakter.", "error");
-                    return;
-                }
-
-                setLoading(prev => ({ ...prev, character: charId }));
-                
-                try {
-                    // Simple mock generation using template strings
-                    const concept = character.ideaConcept.toLowerCase();
-                    const appearanceTemplates = [
-                        `${concept} dengan mata tajam dan postur atletis`,
-                        `${concept} dengan ciri khas di wajah seperti bekas luka`,
-                        `${concept} dengan ekspresi datar dan tatapan kosong`
-                    ];
-                    
-                    const clothingTemplates = [
-                        `Selalu mengenakan pakaian bernuansa gelap dengan aksesori unik`,
-                        `Pakaian yang sesuai dengan lingkungan alam ${concept}`,
-                        `Pakaian vintage dengan sentuhan modern`
-                    ];
-
-                    const randomAppearance = appearanceTemplates[
-                        Math.floor(Math.random() * appearanceTemplates.length)
-                    ];
-                    
-                    const randomClothing = clothingTemplates[
-                        Math.floor(Math.random() * clothingTemplates.length)
-                    ];
-
-                    handleDefinedCharacterChange(charId, 'appearance', randomAppearance);
-                    handleDefinedCharacterChange(charId, 'clothing', randomClothing);
-                    
-                    showMessage("Karakter berhasil di-generate!", "success");
-                } catch(error) {
-                    showMessage(error.message, 'error');
-                } finally {
-                    setLoading(prev => ({ ...prev, character: null }));
-                }
-            };
-
-            // Storyboard Generation
-            const handleGenerateStoryboard = () => {
-                if(!optimizedPrompt) {
-                    showMessage("Hasilkan prompt optimasi terlebih dahulu.", "error");
-                    return;
-                }
-
-                setLoading(prev => ({...prev, storyboard: true}));
-                setStoryboard([]);
-
-                try {
-                    // Simple NLP-like processing for storyboard generation
-                    const shots = [];
-                    const promptWords = optimizedPrompt.split(' ');
-                    
-                    // Extract key elements from prompt
-                    const cameraMovements = cameraMovementOptions.map(o => o.value);
-                    const cameraAngles = cameraAngleOptions.map(o => o.value);
-                    const lightingStyles = lightingOptions.map(o => o.value);
-                    
-                    // Generate mock storyboard based on keywords
-                    if (cameraMovement) {
-                        shots.push({
-                            shot_number: 1,
-                            description: `Opening Shot - ${cameraMovement}, ${cameraAngle || 'wide shot'}, menampilkan suasana ${setting || 'lingkungan umum'}`
-                        });
-                    }
-                    
-                    if (promptWords.some(word => word.includes('dialog'))) {
-                        shots.push({
-                            shot_number: shots.length + 1,
-                            description: `Medium Shot - Fokus pada karakter utama saat berdialog, menggunakan pencahayaan ${lighting || 'alami'}`
-                        });
-                    }
-                    
-                    if (promptWords.some(word => word.includes('action'))) {
-                        shots.push({
-                            shot_number: shots.length + 1,
-                            description: `Dynamic Shot - Menggunakan teknik ${cameraMovement || 'tracking shot'} untuk menangkap aksi intens`
-                        });
-                    }
-                    
-                    // Add default shots if none generated
-                    if (shots.length === 0) {
-                        shots.push(
-                            {
-                                shot_number: 1,
-                                description: `Establishing Shot - Wide angle menampilkan lokasi utama dengan pencahayaan ${lighting || 'natural'}`
-                            },
-                            {
-                                shot_number: 2,
-                                description: `Close-up Shot - Fokus pada ekspresi karakter utama`
-                            }
-                        );
-                    }
-
-                    setStoryboard(shots);
-                } catch(error) {
-                    showMessage(error.message, 'error');
-                } finally {
-                    setLoading(prev => ({...prev, storyboard: false}));
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8 font-sans">
-                    <div className="w-full max-w-7xl mx-auto">
-                        <div className="text-center mb-10">
-                            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-2">Cinematic Video Prompt Generator</h1>
-                            <p className="text-lg text-slate-600">Alat pra-produksi untuk konsistensi karakter dan adegan yang memukau.</p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                            <div className="lg:col-span-2 space-y-6">
-                                {/* Character Management Section */}
-                                <FormSection title="Manajemen Karakter (Character Sheet)" icon={<UsersIcon />}>
-                                    {definedCharacters.map((char, index) => (
-                                        <div key={char.id} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <h4 className="font-semibold text-slate-600">Karakter {index + 1}</h4>
-                                                <button 
-                                                    onClick={() => removeDefinedCharacter(char.id)} 
-                                                    className="text-red-500 hover:text-red-700 font-bold text-xl" 
-                                                    title="Hapus"
-                                                >
-                                                    &times;
-                                                </button>
-                                            </div>
-                                            
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Nama Karakter <span className="text-red-500">*</span>
-                                                    </label>
-                                                    <Input 
-                                                        type="text" 
-                                                        placeholder="Contoh: Rendra, The Wanderer" 
-                                                        value={char.name} 
-                                                        onChange={(e) => handleDefinedCharacterChange(char.id, 'name', e.target.value)} 
-                                                    />
-                                                </div>
-                                                
-                                                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-2">
-                                                        ✨ Asisten Karakter (AI)
-                                                    </label>
-                                                    <div className="flex gap-2 items-center">
-                                                        <Input 
-                                                            type="text" 
-                                                            placeholder="Konsep ide: detektif tua..." 
-                                                            value={char.ideaConcept || ''} 
-                                                            onChange={(e) => handleDefinedCharacterChange(char.id, 'ideaConcept', e.target.value)} 
-                                                        />
-                                                        <button 
-                                                            onClick={() => handleGenerateCharacter(char.id)} 
-                                                            disabled={loading.character === char.id} 
-                                                            className={`py-2 px-3 rounded-lg font-semibold flex items-center ${
-                                                                loading.character === char.id 
-                                                                    ? 'bg-slate-400' 
-                                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                                                            }`}
-                                                        >
-                                                            {loading.character === char.id ? (
-                                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24">
-                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                </svg>
-                                                            ) : (
-                                                                <SparklesIcon />
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Penampilan Fisik
-                                                    </label>
-                                                    <Textarea 
-                                                        placeholder="Contoh: Pria 30 tahun, rambut hitam ikal..." 
-                                                        value={char.appearance} 
-                                                        onChange={(e) => handleDefinedCharacterChange(char.id, 'appearance', e.target.value)} 
-                                                        rows={3}
-                                                    />
-                                                </div>
-                                                
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Gaya Pakaian Khas
-                                                    </label>
-                                                    <Input 
-                                                        type="text" 
-                                                        placeholder="Contoh: Selalu memakai kemeja flanel..." 
-                                                        value={char.clothing} 
-                                                        onChange={(e) => handleDefinedCharacterChange(char.id, 'clothing', e.target.value)} 
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    
-                                    <button 
-                                        onClick={addDefinedCharacter} 
-                                        className="w-full mt-2 py-2 px-4 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <PlusCircleIcon /> Tambah Karakter
-                                    </button>
-                                </FormSection>
-                                
-                                {/* Scene Composition Section */}
-                                <FormSection title="Penyusunan Adegan" icon={<FilmIcon />}>
-                                    <div>
-                                        <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                            Deskripsi Inti Adegan <span className="text-red-500">*</span>
-                                        </label>
-                                        <Textarea 
-                                            placeholder="Contoh: Sebuah pertemuan rahasia di malam hari..." 
-                                            value={mainDescription} 
-                                            onChange={(e) => setMainDescription(e.target.value)} 
-                                            required 
-                                            rows="2"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                            Lokasi & Atmosfer
-                                        </label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <Input 
-                                                type="text" 
-                                                placeholder="Contoh: gang sempit di kota hujan..." 
-                                                value={setting} 
-                                                onChange={(e) => setSetting(e.target.value)} 
-                                            />
-                                            <Select 
-                                                value={visualMood} 
-                                                onChange={(e) => setVisualMood(e.target.value)}
-                                            >
-                                                <option value="">Pilih Mood</option>
-                                                {visualMoodOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                    </div>
-                                    
-                                    {sceneSubjects.map((sub, index) => (
-                                        <div key={sub.id} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h4 className="font-semibold text-slate-600">Aksi Subjek {index + 1}</h4>
-                                                <button 
-                                                    onClick={() => removeSceneSubject(sub.id)} 
-                                                    className="text-red-500 hover:text-red-700 font-bold text-xl" 
-                                                    title="Hapus"
-                                                >
-                                                    &times;
-                                                </button>
-                                            </div>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Pilih Karakter
-                                                    </label>
-                                                    <Select 
-                                                        value={sub.characterId || ''} 
-                                                        onChange={(e) => handleSceneSubjectChange(sub.id, 'characterId', e.target.value ? parseInt(e.target.value, 10) : null)}
-                                                    >
-                                                        <option value="">Pilih Aktor</option>
-                                                        {definedCharacters.map(c => (
-                                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                                        ))}
-                                                    </Select>
-                                                </div>
-                                                
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Aksi & Emosi
-                                                    </label>
-                                                    <Input 
-                                                        type="text" 
-                                                        placeholder="Contoh: menatap dengan curiga..." 
-                                                        value={sub.action} 
-                                                        onChange={(e) => handleSceneSubjectChange(sub.id, 'action', e.target.value)} 
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    
-                                    <button 
-                                        onClick={addSceneSubject} 
-                                        className="w-full mt-2 py-2 px-4 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <PlusCircleIcon /> Tambah Aksi Subjek
-                                    </button>
-                                </FormSection>
-                                
-                                {/* Sound Design Section */}
-                                <FormSection title="Desain Suara & Dialog" icon={<MusicIcon />}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Musik Latar
-                                            </label>
-                                            <Input 
-                                                type="text" 
-                                                placeholder="Contoh: alunan piano melankolis..." 
-                                                value={backgroundMusic} 
-                                                onChange={(e) => setBackgroundMusic(e.target.value)} 
-                                            />
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Efek Suara (SFX)
-                                            </label>
-                                            <Input 
-                                                type="text" 
-                                                placeholder="Contoh: suara hujan, gema langkah..." 
-                                                value={sfx} 
-                                                onChange={(e) => setSfx(e.target.value)} 
-                                            />
-                                        </div>
-                                    </div>
-                                    
-                                    {dialogueEntries.map((entry, index) => (
-                                        <div key={entry.id} className="p-4 border border-slate-200 rounded-lg bg-slate-50 mt-4">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h4 className="font-semibold text-slate-600">Baris Dialog {index + 1}</h4>
-                                                <button 
-                                                    onClick={() => removeDialogueEntry(entry.id)} 
-                                                    className="text-red-500 hover:text-red-700 font-bold text-xl" 
-                                                    title="Hapus"
-                                                >
-                                                    &times;
-                                                </button>
-                                            </div>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Karakter
-                                                    </label>
-                                                    <Select 
-                                                        value={entry.characterId || ''} 
-                                                        onChange={(e) => handleDialogueEntryChange(entry.id, 'characterId', e.target.value ? parseInt(e.target.value, 10) : null)}
-                                                    >
-                                                        <option value="">Pilih</option>
-                                                        {definedCharacters.map(c => (
-                                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                                        ))}
-                                                    </Select>
-                                                </div>
-                                                
-                                                <div>
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Nada Bicara
-                                                    </label>
-                                                    <Input 
-                                                        type="text" 
-                                                        placeholder="Berbisik, gembira, sarkasme..." 
-                                                        value={entry.tone} 
-                                                        onChange={(e) => handleDialogueEntryChange(entry.id, 'tone', e.target.value)} 
-                                                    />
-                                                </div>
-                                                
-                                                <div className="md:col-span-2">
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Isi Dialog
-                                                    </label>
-                                                    <Textarea 
-                                                        placeholder="Contoh: 'Kita tidak punya banyak waktu.'" 
-                                                        value={entry.text} 
-                                                        onChange={(e) => handleDialogueEntryChange(entry.id, 'text', e.target.value)} 
-                                                        rows="2"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    
-                                    <button 
-                                        onClick={addDialogueEntry} 
-                                        className="w-full mt-4 py-2 px-4 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2"
-                                    >
-                                        <PlusCircleIcon /> Tambah Dialog
-                                    </button>
-                                </FormSection>
-                                
-                                {/* Cinematography Section */}
-                                <FormSection title="Sinematografi & Teknis" icon={<CameraIcon />}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Pergerakan Kamera
-                                            </label>
-                                            <Select 
-                                                value={cameraMovement} 
-                                                onChange={(e) => setCameraMovement(e.target.value)}
-                                            >
-                                                <option value="">Pilih</option>
-                                                {cameraMovementOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Sudut Kamera
-                                            </label>
-                                            <Select 
-                                                value={cameraAngle} 
-                                                onChange={(e) => setCameraAngle(e.target.value)}
-                                            >
-                                                <option value="">Pilih</option>
-                                                {cameraAngleOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Pencahayaan
-                                            </label>
-                                            <Select 
-                                                value={lighting} 
-                                                onChange={(e) => setLighting(e.target.value)}
-                                            >
-                                                <option value="">Pilih</option>
-                                                {lightingOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Gaya Visual
-                                            </label>
-                                            <Select 
-                                                value={cinematicStyle} 
-                                                onChange={(e) => setCinematicStyle(e.target.value)}
-                                            >
-                                                <option value="">Pilih</option>
-                                                {cinematicStyleOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Rasio Aspek
-                                            </label>
-                                            <Select 
-                                                value={aspectRatio} 
-                                                onChange={(e) => setAspectRatio(e.target.value)}
-                                            >
-                                                {aspectRatioOptions.map(o => (
-                                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                Kualitas Video
-                                            </label>
-                                            <Select 
-                                                value={videoQuality} 
-                                                onChange={(e) => setVideoQuality(e.target.value)}
-                                            >
-                                                <option value="">Pilih Kualitas</option>
-                                                {videoQualityOptions.map(o => (
-                                                    <option key={o} value={o}>{o}</option>
-                                                ))}
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </FormSection>
-                            </div>
-                            
-                            {/* Results Section */}
-                            <div className="lg:col-span-1 lg:sticky top-8 self-start">
-                                <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                                    <h2 className="text-xl font-bold mb-4 text-slate-800">Hasil & Aksi</h2>
-                                    <button 
-                                        onClick={generatePrompt} 
-                                        className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center text-lg ${
-                                            loading.main || !mainDescription 
-                                                ? 'bg-slate-400 cursor-not-allowed' 
-                                                : 'bg-blue-600 hover:bg-blue-700 shadow-lg'
-                                        }`} 
-                                        disabled={loading.main || !mainDescription}
-                                    >
-                                        {loading.main ? (
-                                            <><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg> Menghasilkan...</>
-                                        ) : 'Hasilkan Prompt Video'}
-                                    </button>
-                                    
-                                    {(!loading.main && (indonesianPrompt || englishPrompt || optimizedPrompt)) && (
-                                        <div className="mt-6 space-y-4 animate-fade-in">
-                                            {indonesianPrompt && (
-                                                <div className="relative">
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Prompt Indonesia
-                                                    </label>
-                                                    <Textarea 
-                                                        readOnly 
-                                                        value={indonesianPrompt} 
-                                                        rows="5" 
-                                                        className="bg-slate-100" 
-                                                    />
-                                                    <button 
-                                                        onClick={() => copyToClipboard(indonesianPrompt, 'Prompt Indonesia')} 
-                                                        className="absolute top-8 right-2 text-slate-400 hover:text-blue-600 p-1" 
-                                                        title="Salin"
-                                                    >
-                                                        <CopyIcon />
-                                                    </button>
-                                                </div>
-                                            )}
-                                            
-                                            {englishPrompt && (
-                                                <div className="relative">
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Prompt Inggris
-                                                    </label>
-                                                    <Textarea 
-                                                        readOnly 
-                                                        value={englishPrompt} 
-                                                        rows="5" 
-                                                        className="bg-slate-100" 
-                                                    />
-                                                    <button 
-                                                        onClick={() => copyToClipboard(englishPrompt, 'Prompt Inggris')} 
-                                                        className="absolute top-8 right-2 text-slate-400 hover:text-blue-600 p-1" 
-                                                        title="Salin"
-                                                    >
-                                                        <CopyIcon />
-                                                    </button>
-                                                </div>
-                                            )}
-                                            
-                                            {optimizedPrompt && (
-                                                <div className="relative">
-                                                    <label className="block text-slate-700 text-sm font-semibold mb-1">
-                                                        Prompt Optimasi (Director's Cut)
-                                                    </label>
-                                                    <Textarea 
-                                                        readOnly 
-                                                        value={optimizedPrompt} 
-                                                        rows="7" 
-                                                        className="bg-slate-100" 
-                                                    />
-                                                    <button 
-                                                        onClick={() => copyToClipboard(optimizedPrompt, 'Prompt Optimasi')} 
-                                                        className="absolute top-8 right-2 text-slate-400 hover:text-blue-600 p-1" 
-                                                        title="Salin"
-                                                    >
-                                                        <CopyIcon />
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {optimizedPrompt && (
-                                    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 mt-6">
-                                        <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
-                                            <ClipboardListIcon />Asisten Sutradara
-                                        </h2>
-                                        <button 
-                                            onClick={handleGenerateStoryboard} 
-                                            className={`w-full py-2 px-4 rounded-lg font-semibold text-white transition-all duration-300 flex items-center justify-center ${
-                                                loading.storyboard 
-                                                    ? 'bg-slate-400 cursor-not-allowed' 
-                                                    : 'bg-blue-600 hover:bg-blue-700'
-                                            }`} 
-                                            disabled={loading.storyboard}
-                                        >
-                                            {loading.storyboard ? (
-                                                <><svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg> Membuat Storyboard...</>
-                                            ) : '✨ Buat Storyboard Adegan'}
-                                        </button>
-                                        
-                                        {storyboard.length > 0 && (
-                                            <div className="mt-4 space-y-3 animate-fade-in">
-                                                {storyboard.map(shot => (
-                                                    <div key={shot.shot_number} className="p-3 bg-slate-100 rounded-lg text-sm">
-                                                        <p>
-                                                            <strong className="font-semibold text-slate-700">
-                                                                Shot {shot.shot_number}:
-                                                            </strong> {shot.description}
-                                                        </p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <footer className="text-center mt-12 py-4">
-                            <p className="text-sm text-slate-500">raf_dev</p>
-                        </footer>
+        <!-- Sinematografi -->
+        <div class="card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Sinematografi & Teknis</h2>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="section">
+                <div class="grid-container">
+                    <div class="form-group">
+                        <label>Pergerakan Kamera</label>
+                        <select id="cameraMovement">
+                            <option disabled selected>Pilih Pergerakan Kamera</option>
+                            <option>Orbit / Rotate 360°</option>
+                            <option>Slow Push-in (Mendekat)</option>
+                            <option>Pull-out Reveal (Menjauh)</option>
+                            <option>Crane Up/Down (Naik/Turun)</option>
+                            <option>Tilt Down/Up (Miring Atas/Bawah)</option>
+                            <option>Top-down Pan (Geser dari Atas)</option>
+                            <option>Slide/Track Sideways (Geser ke Samping)</option>
+                            <option>Zoom In/Out</option>
+                            <option>Static Shot (Kamera Diam)</option>
+                            <option>Tracking Shot (Mengikuti Subjek)</option>
+                            <option>Handheld (Gaya Genggam)</option>
+                            <option>POV (Sudut Pandang Subjek)</option>
+                            <option>Steadicam (Halus & Stabil)</option>
+                            <option>Slow Motion</option>
+                            <option>Rack Focus (Pindah Fokus)</option>
+                        </select>
                     </div>
                     
-                    <MessageBox message={message} type={messageType} onClose={() => setMessage('')} />
+                    <div class="form-group">
+                        <label>Sudut Kamera</label>
+                        <select id="cameraAngle">
+                            <option disabled selected>Pilih Sudut Kamera</option>
+                            <option>Close-up</option>
+                            <option>Extreme Close-up / Macro</option>
+                            <option>Medium shot</option>
+                            <option>Low angle (Dari Bawah)</option>
+                            <option>High angle (Dari Atas)</option>
+                            <option>Top-down / Flatlay</option>
+                            <option>Dutch angle (Miring)</option>
+                            <option>Backlit silhouette</option>
+                            <option>Wide shot (Lebar)</option>
+                            <option>Over-the-shoulder</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pencahayaan</label>
+                        <select id="lighting">
+                            <option disabled selected>Pilih Pencahayaan</option>
+                            <option>Dramatic Side Lighting</option>
+                            <option>Moody Shadows</option>
+                            <option>Golden Hour</option>
+                            <option>Blue Hour</option>
+                            <option>Backlight with Rim Light</option>
+                            <option>Soft Light</option>
+                            <option>Studio Spotlight</option>
+                            <option>Flickering Neon</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Gaya Visual</label>
+                        <select id="visualStyle">
+                            <option disabled selected>Pilih Gaya Visual</option>
+                            <option>Hyperreal CGI</option>
+                            <option>Inspired by Apple Ads</option>
+                            <option>35mm Film Look</option>
+                            <option>Analog Grain</option>
+                            <option>Cinematic LUT</option>
+                            <option>Inspired by Blade Runner</option>
+                            <option>Wong Kar Wai Aesthetic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rasio Aspek</label>
+                        <select id="aspectRatio">
+                            <option disabled selected>Pilih Rasio Aspek</option>
+                            <option>16:9 (Layar Lebar)</option>
+                            <option>9:16 (Vertikal)</option>
+                            <option>1:1 (Persegi)</option>
+                            <option>4:3 (TV Klasik)</option>
+                            <option>2.35:1 (Layar Lebar Sinematik)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Kualitas Video</label>
+                        <select id="videoQuality">
+                            <option disabled selected>Pilih Kualitas Video</option>
+                            <option>4K</option>
+                            <option>HD</option>
+                            <option>Cinematic Quality</option>
+                            <option>Hyper-realistic</option>
+                            <option>Crystal clear</option>
+                            <option>Vintage Film (Grainy)</option>
+                            <option>Lo-fi Style</option>
+                        </select>
+                    </div>
                 </div>
-            );
+            </div>
+        </div>
+
+        <!-- Tombol Generate -->
+        <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="generatePrompts()">
+            Generate Prompt
+        </button>
+
+        <!-- Hasil Prompt -->
+        <div class="card">
+            <h2>Hasil Prompt</h2>
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('id')">Bahasa Indonesia</button>
+                <button class="tab-button" onclick="showTab('en')">English</button>
+                <button class="tab-button" onclick="showTab('opt')">Optimized</button>
+            </div>
+            <div id="promptResults">
+                <div class="prompt-box" id="idPrompt" style="display: block;"></div>
+                <div class="prompt-box" id="enPrompt" style="display: none;"></div>
+                <div class="prompt-box" id="optPrompt" style="display: none;"></div>
+            </div>
+            <div class="tab-buttons">
+                <button class="btn-primary" onclick="copyPrompt()">
+                    Salin Prompt
+                </button>
+                <button class="btn-primary" onclick="exportPrompt()">
+                    Ekspor (.txt)
+                </button>
+            </div>
+        </div>
+
+        <!-- Riwayat -->
+        <div class="card">
+            <h2>Riwayat Prompt</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        let darkMode = false;
+        let history = [];
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', darkMode);
         }
 
-        const container = document.getElementById('root');
-        const root = ReactDOM.createRoot(container);
-        root.render(<App />);
+        function toggleSection(header) {
+            const section = header.nextElementSibling;
+            section.classList.toggle('collapsed');
+            const arrow = header.querySelector('.arrow');
+            arrow.style.transform = section.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0)';
+        }
+
+        function generatePrompts() {
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.innerHTML = 'Processing...';
+            document.getElementById('promptResults').innerHTML = '';
+            document.getElementById('promptResults').appendChild(loading);
+
+            setTimeout(() => {
+                const character = document.getElementById('characterName').value || 'Protagonis';
+                const mood = document.getElementById('moodSelector').value;
+                const cameraMovement = document.getElementById('cameraMovement').value;
+                const cameraAngle = document.getElementById('cameraAngle').value;
+                const lighting = document.getElementById('lighting').value;
+                const visualStyle = document.getElementById('visualStyle').value;
+                const aspectRatio = document.getElementById('aspectRatio').value;
+                const videoQuality = document.getElementById('videoQuality').value;
+                const sceneDescription = document.getElementById('sceneDescription').value || '[deskripsi adegan]';
+                const locationAtmosphere = document.getElementById('locationAtmosphere').value || '[lokasi dan atmosfer]';
+                const backgroundMusic = document.getElementById('backgroundMusic').value || '[musik latar]';
+                const soundEffects = document.getElementById('soundEffects').value || '[efek suara]';
+                const dialogueLine = document.getElementById('dialogueLine').value || '[baris dialog]';
+                const toneOfVoice = document.getElementById('toneOfVoice').value || '[nada bicara]';
+                
+                // Prompt Indonesia
+                const indonesianPrompt = `Cinematic Scene Prompt Generator v2.0
+
+[MOOD] 
+${mood}: ${getMoodDescription(mood)} 
+
+[CHARACTER] 
+Main Character: ${character} 
+Appearance: ${physicalAppearance} 
+Clothing: ${clothingStyle} 
+
+[SCENE] 
+Description: ${sceneDescription} 
+Location & Atmosphere: ${locationAtmosphere} 
+
+[CINEMATOGRAPHY] 
+Camera Movement: ${cameraMovement} 
+Camera Angle: ${cameraAngle} 
+Lighting: ${lighting} 
+Visual Style: ${visualStyle} 
+Aspect Ratio: ${aspectRatio} 
+Video Quality: ${videoQuality} 
+
+[AUDIO DESIGN] 
+Background Music: ${backgroundMusic} 
+Sound Effects: ${soundEffects} 
+Dialogue Line: "${dialogueLine}" 
+Tone of Voice: ${toneOfVoice} 
+
+[TECHNICAL NOTES] 
+- Resolution: 4K UHD 
+- Frame Rate: 24fps 
+- Color Grading: ${getColorGrading(visualStyle)} 
+- Export Preset: ${getExportPreset(videoQuality)}`;
+
+                // Prompt English
+                const englishPrompt = `Cinematic Scene Prompt Generator v2.0
+
+[MOOD] 
+${mood}: ${getMoodDescription(mood, 'en')} 
+
+[CHARACTER] 
+Main Character: ${character} 
+Appearance: ${physicalAppearance} 
+Clothing: ${clothingStyle} 
+
+[SCENE] 
+Description: ${sceneDescription} 
+Location & Atmosphere: ${locationAtmosphere} 
+
+[CINEMATOGRAPHY] 
+Camera Movement: ${cameraMovement} 
+Camera Angle: ${cameraAngle} 
+Lighting: ${lighting} 
+Visual Style: ${visualStyle} 
+Aspect Ratio: ${aspectRatio} 
+Video Quality: ${videoQuality} 
+
+[AUDIO DESIGN] 
+Background Music: ${backgroundMusic} 
+Sound Effects: ${soundEffects} 
+Dialogue Line: "${dialogueLine}" 
+Tone of Voice: ${toneOfVoice} 
+
+[TECHNICAL NOTES] 
+- Resolution: 4K UHD 
+- Frame Rate: 24fps 
+- Color Grading: ${getColorGrading(visualStyle, 'en')} 
+- Export Preset: ${getExportPreset(videoQuality, 'en')}`;
+
+                // Prompt Optimized
+                const optimizedPrompt = `Cinematic ${mood.toLowerCase()} scene featuring ${character} in a ${locationAtmosphere}. Use ${cameraMovement} camera movement with ${cameraAngle} angle, combined with ${lighting} lighting and ${visualStyle} visual style. Maintain ${aspectRatio} aspect ratio for optimal composition with ${videoQuality} quality. Include dialogue: "${dialogueLine}" delivered in ${toneOfVoice} tone. Enhance atmosphere with subtle ${soundEffects} sound effects and ${backgroundMusic} background music. Apply ${visualStyle.toLowerCase()} aesthetic with ${getColorGrading(visualStyle, 'en')} color grading at 24fps.`;
+
+                displayResults(indonesianPrompt, englishPrompt, optimizedPrompt);
+                saveToHistory(indonesianPrompt);
+            }, 800);
+        }
+
+        function getMoodDescription(mood, lang = 'id') {
+            const descriptions = {
+                'id': {
+                    "Eerie (Mencekam)": "Nuansa gelap dengan pencahayaan minimal untuk meningkatkan ketegangan.",
+                    "Nostalgic (Nostalgia)": "Warna kekuningan dan grain film untuk kesan retrospektif.",
+                    "Tense (Tegang)": "Ketegangan visual melalui pencahayaan kontras dan gerakan kamera dinamis.",
+                    "Peaceful (Damai)": "Pemandangan alami dengan warna pastel dan pencahayaan lembut.",
+                    "Hopeful (Penuh Harapan)": "Warna cerah dengan transisi cahaya yang simbolis.",
+                    "Melancholic (Melankolis)": "Warna biru keabuan dengan pencahayaan rendah.",
+                    "Gritty (Kasar)": "Detail kasar dengan pencahayaan harsh dan sudut kamera rendah.",
+                    "Surreal (Tidak Nyata)": "Efek visual tidak realistis dengan distorsi perspektif.",
+                    "Dreamlike (Seperti Mimpi)": "Transisi lembut dan efek lensa yang mengaburkan batas realitas."
+                },
+                'en': {
+                    "Eerie (Mencekam)": "Dark tones with minimal lighting to heighten tension.",
+                    "Nostalgic (Nostalgia)": "Amber tones with film grain for a retrospective feel.",
+                    "Tense (Tegang)": "Visual tension through contrast lighting and dynamic camera movements.",
+                    "Peaceful (Damai)": "Natural scenery with pastel colors and soft lighting.",
+                    "Hopeful (Penuh Harapan)": "Bright colors with symbolic light transitions.",
+                    "Melancholic (Melankolis)": "Grey-blue tones with low lighting.",
+                    "Gritty (Kasar)": "Rough details with harsh lighting and low camera angles.",
+                    "Surreal (Tidak Nyata)": "Unrealistic visual effects with perspective distortion.",
+                    "Dreamlike (Seperti Mimpi)": "Soft transitions and lens effects that blur reality boundaries."
+                }
+            };
+            return descriptions[lang][mood] || "Description not available.";
+        }
+
+        function getColorGrading(style, lang = 'id') {
+            const colorGrading = {
+                'id': {
+                    "Hyperreal CGI": "High dynamic range dengan saturasi intens",
+                    "Inspired by Apple Ads": "Warna pastel dengan pencahayaan halus",
+                    "35mm Film Look": "Film grain dengan kontras moderat",
+                    "Analog Grain": "Efek film analog dengan noise halus",
+                    "Cinematic LUT": "Palet warna profesional dengan kontras tinggi",
+                    "Inspired by Blade Runner": "Palet biru-merah dengan kontras tinggi",
+                    "Wong Kar Wai Aesthetic": "Warna jenuh dengan efek bokeh dramatis"
+                },
+                'en': {
+                    "Hyperreal CGI": "High dynamic range with intense saturation",
+                    "Inspired by Apple Ads": "Pastel colors with soft lighting",
+                    "35mm Film Look": "Film grain with moderate contrast",
+                    "Analog Grain": "Analog film effect with soft noise",
+                    "Cinematic LUT": "Professional color palette with high contrast",
+                    "Inspired by Blade Runner": "Blue-red palette with high contrast",
+                    "Wong Kar Wai Aesthetic": "Saturated colors with dramatic bokeh"
+                }
+            };
+            return colorGrading[lang][style] || "Standard cinematic LUT";
+        }
+
+        function getExportPreset(quality, lang = 'id') {
+            const presets = {
+                'id': {
+                    "4K": "4K UHD (3840×2160)",
+                    "HD": "Full HD (1920×1080)",
+                    "Cinematic Quality": "DCP Digital Cinema Package",
+                    "Hyper-realistic": "8K resolution with HDR",
+                    "Crystal clear": "4K with 10-bit color depth",
+                    "Vintage Film (Grainy)": "Film scan 2K with grain overlay",
+                    "Lo-fi Style": "480p with compression artifacts"
+                },
+                'en': {
+                    "4K": "4K UHD (3840×2160)",
+                    "HD": "Full HD (1920×1080)",
+                    "Cinematic Quality": "DCP Digital Cinema Package",
+                    "Hyper-realistic": "8K resolution with HDR",
+                    "Crystal clear": "4K with 10-bit color depth",
+                    "Vintage Film (Grainy)": "Film scan 2K with grain overlay",
+                    "Lo-fi Style": "480p with compression artifacts"
+                }
+            };
+            return presets[lang][quality] || "Standard export";
+        }
+
+        function displayResults(idn, eng, opt) {
+            document.getElementById('idPrompt').innerHTML = idn;
+            document.getElementById('enPrompt').innerHTML = eng;
+            document.getElementById('optPrompt').innerHTML = opt;
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-button[onclick="showTab('${tab}')"]`).classList.add('active');
+            
+            document.querySelectorAll('.prompt-box').forEach(box => {
+                box.style.display = 'none';
+            });
+            
+            document.getElementById(`${tab}Prompt`).style.display = 'block';
+        }
+
+        function copyPrompt() {
+            const activePrompt = document.querySelector('.prompt-box[style="display: block;"]');
+            if (activePrompt) {
+                navigator.clipboard.writeText(activePrompt.textContent)
+                    .then(() => alert('Prompt berhasil disalin!'))
+                    .catch(err => console.error('Error copying text: ', err));
+            }
+        }
+
+        function exportPrompt() {
+            const activePrompt = document.querySelector('.prompt-box[style="display: block;"]');
+            if (activePrompt) {
+                const blob = new Blob([activePrompt.textContent], {type: 'text/plain'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `prompt_${new Date().toISOString().slice(0,10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function saveToHistory(prompt) {
+            history.unshift(prompt);
+            if (history.length > 5) history.pop();
+            localStorage.setItem('promptHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p>Belum ada riwayat prompt.</p>';
+                return;
+            }
+
+            history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div>Prompt ${index + 1}</div>
+                    <div class="history-buttons">
+                        <button class="btn-secondary" onclick="loadHistory(${index})">Muat</button>
+                        <button class="btn-secondary" onclick="deleteHistory(${index})">Hapus</button>
+                    </div>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        function loadHistory(index) {
+            const prompt = history[index];
+            document.getElementById('idPrompt').innerHTML = prompt;
+            document.getElementById('enPrompt').innerHTML = '';
+            document.getElementById('optPrompt').innerHTML = '';
+            document.querySelector('.tab-button.active').classList.remove('active');
+            document.querySelector('.tab-button[onclick="showTab(\'id\')"]').classList.add('active');
+            document.querySelectorAll('.prompt-box').forEach(box => {
+                box.style.display = 'none';
+            });
+            document.getElementById('idPrompt').style.display = 'block';
+        }
+
+        function deleteHistory(index) {
+            history.splice(index, 1);
+            localStorage.setItem('promptHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function addCharacter() {
+            alert('Fitur penambahan karakter akan segera hadir!');
+        }
+
+        // Load saved data
+        window.onload = function() {
+            // Dark mode
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                darkMode = true;
+                document.body.classList.add('dark-mode');
+            }
+
+            // History
+            const savedHistory = localStorage.getItem('promptHistory');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+                renderHistory();
+            }
+        }
     </script>
 </body>
 </html>
