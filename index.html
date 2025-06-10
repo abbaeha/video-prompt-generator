@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generator Prompt Video Sinematik</title>
     <style>
+
+        .page-title {
+            color: #333; /* Warna default untuk light mode */
+            transition: color 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .page-title {
+            color: white; /* Warna untuk dark mode */
+        }
+        
+        /* Atau jika tidak menggunakan class: */
+        .container > div:first-child h1 {
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        
+        body.dark-mode .container > div:first-child h1 {
+            color: white;
+        }
+
         :root {
             --primary-color: #6C63FF;
-            --secondary-color: #FFFFFF;
+            --secondary-color: #F8F9FA;
             --accent-color: #E91E63;
             --dark-bg: #1a1a1a;
             --dark-card: #2d2d2d;
