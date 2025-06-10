@@ -340,6 +340,39 @@
             justify-content: center;
             margin-top: 15px;
         }
+
+        /* Perbaikan untuk input dan textarea di mobile */
+input[type="text"], textarea {
+    width: 100%;
+    box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+    max-width: 100%;
+    overflow-x: auto; /* Memungkinkan scrolling horizontal */
+    white-space: pre-wrap; /* Mempertahankan format teks */
+    word-wrap: break-word; /* Memecah kata panjang */
+}
+
+/* Container khusus untuk mobile */
+@media (max-width: 600px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Satu kolom di mobile */
+        gap: 10px;
+    }
+    
+    .card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    input[type="text"], textarea {
+        font-size: 16px; /* Ukuran font lebih besar di mobile */
+        min-height: 44px; /* Tinggi minimum untuk touch */
+    }
+    
+    textarea {
+        min-height: 100px; /* Tinggi minimum untuk textarea */
+    }
+}
+        
     </style>
 </head>
 <body>
@@ -1025,5 +1058,18 @@ Tone of Voice: ${toneOfVoice}
             });
         }
     </script>
+    // Auto-resize textarea
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+}
+
+// Event listener untuk semua textarea
+document.querySelectorAll('textarea').forEach(textarea => {
+    textarea.addEventListener('input', () => autoResize(textarea));
+    // Inisialisasi awal
+    autoResize(textarea);
+});
+    
 </body>
 </html>
