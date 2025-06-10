@@ -59,6 +59,7 @@
             display: block;
             margin-bottom: 5px;
             color: #333;
+            font-weight: 500;
         }
 
         body.dark-mode label {
@@ -71,6 +72,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             transition: all 0.3s ease;
+            font-family: inherit;
         }
 
         body.dark-mode select,
@@ -97,6 +99,8 @@
 
         .btn-primary:hover {
             background: #5a52d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .prompt-results {
@@ -111,6 +115,15 @@
             position: relative;
             border-radius: 5px;
             transition: transform 0.3s ease;
+            white-space: pre-wrap;
+            font-family: monospace;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        body.dark-mode .prompt-box {
+            background: #333;
         }
 
         .prompt-box:hover {
@@ -126,6 +139,7 @@
             top: -8px;
             left: 10px;
             font-size: 14px;
+            font-weight: bold;
         }
 
         .grid-container {
@@ -153,10 +167,19 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+
+        .section-header:hover {
+            background: #ddd;
         }
 
         .dark-mode .section-header {
             background: #444;
+        }
+
+        .dark-mode .section-header:hover {
+            background: #555;
         }
 
         .arrow {
@@ -172,12 +195,15 @@
             align-items: center;
             gap: 10px;
             color: var(--primary-color);
+            padding: 20px;
+            justify-content: center;
         }
 
         .tab-buttons {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .tab-button {
@@ -186,6 +212,11 @@
             border-radius: 5px;
             cursor: pointer;
             background: #f0f0f0;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: #e0e0e0;
         }
 
         .tab-button.active {
@@ -202,6 +233,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .dark-mode .history-item {
@@ -220,19 +257,77 @@
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .btn-secondary:hover {
             background: #ccc;
         }
+
+        .dark-mode .btn-secondary {
+            background: #555;
+            color: #fff;
+        }
+
+        .dark-mode .btn-secondary:hover {
+            background: #666;
+        }
+
+        .character-list {
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .character-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .character-item {
+            background: #2a2a2a;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h1>Generator Prompt Video Sinematik</h1>
-            <button onclick="toggleDarkMode()" style="position: absolute; top: 20px; right: 20px;">
-                🌙/☀️
+        <div style="text-align: center; margin-bottom: 30px; position: relative;">
+            <h1 style="margin-bottom: 10px;">Generator Prompt Video Sinematik</h1>
+            <p style="color: #666; max-width: 600px; margin: 0 auto 20px;">Alat untuk membuat prompt video berkualitas tinggi dengan pengaturan sinematik lengkap</p>
+            <button onclick="toggleDarkMode()" style="position: absolute; top: 0; right: 0; background: #f0f0f0; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                🌙
             </button>
         </div>
 
@@ -250,16 +345,23 @@
                     </div>
                     <div class="form-group">
                         <label>Penampilan Fisik</label>
-                        <textarea rows="3" id="physicalAppearance" placeholder="Contoh: Pria 30 tahun, rambut hitam ikal..."></textarea>
+                        <textarea rows="3" id="physicalAppearance" placeholder="Contoh: Pria 30 tahun, rambut hitam ikal, mata tajam, tinggi sekitar 180cm, tubuh atletis"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Gaya Pakaian Khas</label>
-                        <textarea rows="3" id="clothingStyle" placeholder="Contoh: Selalu memakai kemeja flanel..."></textarea>
+                        <textarea rows="3" id="clothingStyle" placeholder="Contoh: Selalu memakai kemeja flanel merah, celana cargo hitam, dan sepatu boot militer"></textarea>
                     </div>
                 </div>
                 <button class="btn-primary" onclick="addCharacter()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
                     Tambah Karakter
                 </button>
+                
+                <div class="character-list" id="characterList">
+                    <!-- Karakter akan ditampilkan di sini -->
+                </div>
             </div>
         </div>
 
@@ -273,11 +375,11 @@
                 <div class="grid-container">
                     <div class="form-group">
                         <label>Deskripsi Inti Adegan</label>
-                        <textarea rows="3" id="sceneDescription" placeholder="Contoh: Sebuah pertemuan rahasia di malam hari..."></textarea>
+                        <textarea rows="3" id="sceneDescription" placeholder="Contoh: Sebuah pertemuan rahasia di malam hari antara dua agen rahasia di bawah hujan deras"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Lokasi & Atmosfer</label>
-                        <input type="text" id="locationAtmosphere" placeholder="Contoh: gang sempit di kota hujan...">
+                        <input type="text" id="locationAtmosphere" placeholder="Contoh: gang sempit di kota hujan, pencahayaan neon yang redup">
                     </div>
                     <div class="form-group">
                         <label>Pilih Mood</label>
@@ -308,19 +410,19 @@
                 <div class="grid-container">
                     <div class="form-group">
                         <label>Musik Latar</label>
-                        <input type="text" id="backgroundMusic" placeholder="Contoh: alunan piano melankolis...">
+                        <input type="text" id="backgroundMusic" placeholder="Contoh: alunan piano melankolis dengan tempo lambat">
                     </div>
                     <div class="form-group">
                         <label>Efek Suara (SFX)</label>
-                        <input type="text" id="soundEffects" placeholder="Contoh: suara hujan, gema langkah...">
+                        <input type="text" id="soundEffects" placeholder="Contoh: suara hujan, gema langkah kaki, dentingan gelas">
                     </div>
                     <div class="form-group">
                         <label>Baris Dialog</label>
-                        <textarea rows="3" id="dialogueLine" placeholder="Contoh: 'Kita tidak punya banyak waktu.'"></textarea>
+                        <textarea rows="3" id="dialogueLine" placeholder="Contoh: 'Kita tidak punya banyak waktu. Mereka sudah tahu lokasi kita.'"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Nada Bicara</label>
-                        <input type="text" id="toneOfVoice" placeholder="Contoh: Berbisik, gembira, sarkasme...">
+                        <input type="text" id="toneOfVoice" placeholder="Contoh: Berbisik, tegang, dengan sedikit getar ketakutan">
                     </div>
                 </div>
             </div>
@@ -432,9 +534,15 @@
         </div>
 
         <!-- Tombol Generate -->
-        <button class="btn-primary" style="width: 100%; font-size: 18px;" onclick="generatePrompts()">
-            Generate Prompt
-        </button>
+        <div class="action-buttons">
+            <button class="btn-primary" style="font-size: 18px; padding: 15px 30px;" onclick="generatePrompts()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Generate Prompt
+            </button>
+        </div>
 
         <!-- Hasil Prompt -->
         <div class="card">
@@ -445,15 +553,30 @@
                 <button class="tab-button" onclick="showTab('opt')">Optimized</button>
             </div>
             <div id="promptResults">
-                <div class="prompt-box" id="idPrompt" style="display: block;"></div>
-                <div class="prompt-box" id="enPrompt" style="display: none;"></div>
-                <div class="prompt-box" id="optPrompt" style="display: none;"></div>
+                <div class="prompt-box" id="idPrompt" style="display: block;">
+                    <div class="prompt-type">Indonesia</div>
+                    <!-- Hasil prompt akan muncul di sini -->
+                </div>
+                <div class="prompt-box" id="enPrompt" style="display: none;">
+                    <div class="prompt-type">English</div>
+                </div>
+                <div class="prompt-box" id="optPrompt" style="display: none;">
+                    <div class="prompt-type">Optimized</div>
+                </div>
             </div>
-            <div class="tab-buttons">
+            <div class="action-buttons">
                 <button class="btn-primary" onclick="copyPrompt()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
                     Salin Prompt
                 </button>
                 <button class="btn-primary" onclick="exportPrompt()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
                     Ekspor (.txt)
                 </button>
             </div>
@@ -462,18 +585,27 @@
         <!-- Riwayat -->
         <div class="card">
             <h2>Riwayat Prompt</h2>
-            <div id="historyList"></div>
+            <div id="historyList">
+                <p>Belum ada riwayat prompt.</p>
+            </div>
         </div>
     </div>
+
+    <div class="toast" id="toast">Prompt berhasil disalin!</div>
 
     <script>
         let darkMode = false;
         let history = [];
+        let characters = [];
+        let selectedCharacter = null;
 
         function toggleDarkMode() {
             darkMode = !darkMode;
             document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', darkMode);
+            
+            const darkModeBtn = document.querySelector('[onclick="toggleDarkMode()"]');
+            darkModeBtn.innerHTML = darkMode ? '☀️' : '🌙';
         }
 
         function toggleSection(header) {
@@ -486,12 +618,14 @@
         function generatePrompts() {
             const loading = document.createElement('div');
             loading.className = 'loading';
-            loading.innerHTML = 'Processing...';
+            loading.innerHTML = '<div class="loader"></div> Processing...';
             document.getElementById('promptResults').innerHTML = '';
             document.getElementById('promptResults').appendChild(loading);
 
             setTimeout(() => {
                 const character = document.getElementById('characterName').value || 'Protagonis';
+                const physicalAppearance = document.getElementById('physicalAppearance').value || '[penampilan fisik]';
+                const clothingStyle = document.getElementById('clothingStyle').value || '[gaya pakaian]';
                 const mood = document.getElementById('moodSelector').value;
                 const cameraMovement = document.getElementById('cameraMovement').value;
                 const cameraAngle = document.getElementById('cameraAngle').value;
@@ -609,7 +743,7 @@ Tone of Voice: ${toneOfVoice}
                     "Dreamlike (Seperti Mimpi)": "Soft transitions and lens effects that blur reality boundaries."
                 }
             };
-            return descriptions[lang][mood] || "Description not available.";
+            return descriptions[lang][mood] || (lang === 'id' ? "Deskripsi tidak tersedia." : "Description not available.");
         }
 
         function getColorGrading(style, lang = 'id') {
@@ -633,7 +767,7 @@ Tone of Voice: ${toneOfVoice}
                     "Wong Kar Wai Aesthetic": "Saturated colors with dramatic bokeh"
                 }
             };
-            return colorGrading[lang][style] || "Standard cinematic LUT";
+            return colorGrading[lang][style] || (lang === 'id' ? "Standard cinematic LUT" : "Standard cinematic LUT");
         }
 
         function getExportPreset(quality, lang = 'id') {
@@ -657,13 +791,13 @@ Tone of Voice: ${toneOfVoice}
                     "Lo-fi Style": "480p with compression artifacts"
                 }
             };
-            return presets[lang][quality] || "Standard export";
+            return presets[lang][quality] || (lang === 'id' ? "Ekspor standar" : "Standard export");
         }
 
         function displayResults(idn, eng, opt) {
-            document.getElementById('idPrompt').innerHTML = idn;
-            document.getElementById('enPrompt').innerHTML = eng;
-            document.getElementById('optPrompt').innerHTML = opt;
+            document.getElementById('idPrompt').textContent = idn;
+            document.getElementById('enPrompt').textContent = eng;
+            document.getElementById('optPrompt').textContent = opt;
         }
 
         function showTab(tab) {
@@ -681,7 +815,7 @@ Tone of Voice: ${toneOfVoice}
             const activePrompt = document.querySelector('.prompt-box[style="display: block;"]');
             if (activePrompt) {
                 navigator.clipboard.writeText(activePrompt.textContent)
-                    .then(() => alert('Prompt berhasil disalin!'))
+                    .then(() => showToast('Prompt berhasil disalin!'))
                     .catch(err => console.error('Error copying text: ', err));
             }
         }
@@ -696,11 +830,26 @@ Tone of Voice: ${toneOfVoice}
                 a.download = `prompt_${new Date().toISOString().slice(0,10)}.txt`;
                 a.click();
                 URL.revokeObjectURL(url);
+                showToast('Prompt berhasil diekspor!');
             }
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         function saveToHistory(prompt) {
-            history.unshift(prompt);
+            history.unshift({
+                content: prompt,
+                date: new Date().toLocaleString()
+            });
+            
             if (history.length > 5) history.pop();
             localStorage.setItem('promptHistory', JSON.stringify(history));
             renderHistory();
@@ -719,7 +868,10 @@ Tone of Voice: ${toneOfVoice}
                 const div = document.createElement('div');
                 div.className = 'history-item';
                 div.innerHTML = `
-                    <div>Prompt ${index + 1}</div>
+                    <div>
+                        <strong>Prompt ${index + 1}</strong>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 4px;">${item.date}</div>
+                    </div>
                     <div class="history-buttons">
                         <button class="btn-secondary" onclick="loadHistory(${index})">Muat</button>
                         <button class="btn-secondary" onclick="deleteHistory(${index})">Hapus</button>
@@ -730,26 +882,95 @@ Tone of Voice: ${toneOfVoice}
         }
 
         function loadHistory(index) {
-            const prompt = history[index];
-            document.getElementById('idPrompt').innerHTML = prompt;
-            document.getElementById('enPrompt').innerHTML = '';
-            document.getElementById('optPrompt').innerHTML = '';
+            const prompt = history[index].content;
+            document.getElementById('idPrompt').textContent = prompt;
+            document.getElementById('enPrompt').textContent = '';
+            document.getElementById('optPrompt').textContent = '';
             document.querySelector('.tab-button.active').classList.remove('active');
             document.querySelector('.tab-button[onclick="showTab(\'id\')"]').classList.add('active');
             document.querySelectorAll('.prompt-box').forEach(box => {
                 box.style.display = 'none';
             });
             document.getElementById('idPrompt').style.display = 'block';
+            showToast('Prompt dimuat dari riwayat!');
         }
 
         function deleteHistory(index) {
             history.splice(index, 1);
             localStorage.setItem('promptHistory', JSON.stringify(history));
             renderHistory();
+            showToast('Prompt dihapus dari riwayat!');
         }
 
         function addCharacter() {
-            alert('Fitur penambahan karakter akan segera hadir!');
+            const name = document.getElementById('characterName').value;
+            const appearance = document.getElementById('physicalAppearance').value;
+            const clothing = document.getElementById('clothingStyle').value;
+            
+            if (!name || !appearance || !clothing) {
+                showToast('Harap isi semua detail karakter!');
+                return;
+            }
+            
+            const character = {
+                id: Date.now(),
+                name,
+                appearance,
+                clothing
+            };
+            
+            characters.push(character);
+            renderCharacters();
+            
+            // Reset form
+            document.getElementById('characterName').value = '';
+            document.getElementById('physicalAppearance').value = '';
+            document.getElementById('clothingStyle').value = '';
+            
+            showToast('Karakter berhasil ditambahkan!');
+        }
+        
+        function renderCharacters() {
+            const characterList = document.getElementById('characterList');
+            characterList.innerHTML = '';
+            
+            if (characters.length === 0) {
+                characterList.innerHTML = '<p>Belum ada karakter yang ditambahkan.</p>';
+                return;
+            }
+            
+            characters.forEach(character => {
+                const div = document.createElement('div');
+                div.className = 'character-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${character.name}</strong>
+                        <div style="font-size: 0.9em; margin-top: 5px;">${character.appearance.substring(0, 50)}...</div>
+                    </div>
+                    <div class="history-buttons">
+                        <button class="btn-secondary" onclick="selectCharacter(${character.id})">Pilih</button>
+                        <button class="btn-secondary" onclick="deleteCharacter(${character.id})">Hapus</button>
+                    </div>
+                `;
+                characterList.appendChild(div);
+            });
+        }
+        
+        function selectCharacter(id) {
+            const character = characters.find(c => c.id === id);
+            if (character) {
+                document.getElementById('characterName').value = character.name;
+                document.getElementById('physicalAppearance').value = character.appearance;
+                document.getElementById('clothingStyle').value = character.clothing;
+                selectedCharacter = character;
+                showToast(`Karakter "${character.name}" dipilih!`);
+            }
+        }
+        
+        function deleteCharacter(id) {
+            characters = characters.filter(c => c.id !== id);
+            renderCharacters();
+            showToast('Karakter dihapus!');
         }
 
         // Load saved data
@@ -759,6 +980,8 @@ Tone of Voice: ${toneOfVoice}
             if (savedDarkMode === 'true') {
                 darkMode = true;
                 document.body.classList.add('dark-mode');
+                const darkModeBtn = document.querySelector('[onclick="toggleDarkMode()"]');
+                darkModeBtn.innerHTML = '☀️';
             }
 
             // History
@@ -767,6 +990,18 @@ Tone of Voice: ${toneOfVoice}
                 history = JSON.parse(savedHistory);
                 renderHistory();
             }
+            
+            // Characters
+            const savedCharacters = localStorage.getItem('characters');
+            if (savedCharacters) {
+                characters = JSON.parse(savedCharacters);
+                renderCharacters();
+            }
+            
+            // Save characters to localStorage when page is about to unload
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('characters', JSON.stringify(characters));
+            });
         }
     </script>
 </body>
